@@ -292,6 +292,11 @@ plt.show()
 st.pyplot(fig)
 
 
-# Kesimpulan: 
-# 1. Dapat meningkatkan penjualan/ memfokuskan penjualan di 3 customer state terbanyak. Penjualan dapat difokuskan di Cusomer city yang memiliki customer sedikit 
-# 2. Untuk produk, dapat memfokuskan/memperbanyak produk dengan nilai penjualan terbanyak dan dapat mengurangi jumlah produk dengan penjualan sedikit
+# In[31]:
+
+
+st.write("""# Kesimpulan
+1. Dapat meningkatkan penjualan/ memfokuskan penjualan di 3 customer state terbanyak. Penjualan dapat difokuskan di Cusomer city yang memiliki customer sedikit 
+2. Untuk produk, dapat memfokuskan/memperbanyak produk dengan nilai penjualan terbanyak dan dapat mengurangi jumlah produk dengan penjualan sedikit
+""")
+
