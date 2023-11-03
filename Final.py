@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # Proyek Analisis Data: E-Commerce Public Dataset 
+
+# Nama: Tobias Mikha Sulistiyo
+# Email: tobias_mikha33
+# Id Dicoding: tobias_mikha
+
+# # Menentukan Pertanyaan Bisnis
+
+# 1. Bagaimana demografi Customer?
+# 2. Produk Manakah yang paling laris terjual?
+
+# # Menyiapkan Library yang Dibutuhkan
+
 # In[1]:
 
 
@@ -9,7 +22,9 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 
-# # Data Preparation
+# # Data Wrangling
+
+# ## Gathering Data 
 
 # In[2]:
 
@@ -31,6 +46,8 @@ translate_df=pd.read_csv(data4)
 orders_df=pd.read_csv(data5)
 
 
+# ## Assesing Data
+
 # In[4]:
 
 
@@ -40,39 +57,65 @@ products_df.info()
 # In[5]:
 
 
-translate_df.info()
+products_df.duplicated().sum()
 
 
 # In[6]:
 
 
-customers_df.info()
+translate_df.info()
 
 
 # In[7]:
 
 
-order_item_df.info()
+customers_df.info()
 
 
 # In[8]:
 
 
+customers_df.duplicated().sum()
+
+
+# In[9]:
+
+
+order_item_df.info()
+
+
+# In[10]:
+
+
+order_item_df.duplicated().sum()
+
+
+# In[11]:
+
+
 orders_df.info()
+
+
+# In[12]:
+
+
+orders_df.duplicated().sum()
 
 
 # karena informasi dari tiap file berbeda, maka perlu dilakukan grouping berdasarkan id tiap order maupun customer. Dalam data ini, saya berpatokan pada order_items.csv untuk pembelian
 
+# ## Data Wrangling
+
 # ## Proses penggabungan/group by customer_id pada data customers dan orders
 
-# In[9]:
+# In[13]:
 
 
 join_df=customers_df.set_index('customer_id').join(orders_df.set_index('customer_id'), how='outer')
 join_df=join_df[['order_id', 'customer_city', 'customer_state', 'order_status']]
 
 
-# In[10]:
+# In[14]:
 
 
 join_df.info()
@@ -80,20 +123,20 @@ join_df.info()
 
 # ## Proses penggabungan/group by order_id pada dataframe join_df dengan dataframe order_item_df
 
-# In[11]:
+# In[15]:
 
 
 join2_df=join_df.set_index('order_id').join(order_item_df.set_index('order_id'), how='right')
 join=join2_df[['product_id','customer_city','customer_state','price', 'order_status']]
 
 
-# In[12]:
+# In[16]:
 
 
 join2_df.info()
 
 
-# In[13]:
+# In[17]:
 
 
 join.head(-5)
@@ -101,28 +144,28 @@ join.head(-5)
 
 # ## Proses penggabungan/group by product_id pada dataframe join dengan dataframe product_df
 
-# In[14]:
+# In[18]:
 
 
 join2=join.set_index('product_id').join(products_df.set_index('product_id'),how='right')
 join3_df=join2[['customer_city', 'customer_state', 'price', 'order_status', 'product_category_name']]
 
 
-# In[15]:
+# In[19]:
 
 
 join3_df.info()
 
 
-# terlihat bahwa product category name memiliki missing value sehingga perlu dilakukan data manipulation supaya jumlah data sama
+# terlihat bahwa product category name memiliki missing value sehingga perlu dilakukan data manipulation (imputation) supaya jumlah data sama
 
-# In[16]:
+# In[20]:
 
 
 join3_df.product_category_name.fillna('Na',inplace=True)
 
 
-# In[17]:
+# In[21]:
 
 
 join3_df.info()
@@ -136,27 +179,27 @@ join3_df.info()
 
 # final_df merupakan dataframe yang diolah
 
-# In[18]:
+# In[22]:
 
 
 final_df=join3_df.set_index('product_category_name').join(translate_df.set_index('product_category_name'), how='left')
 
 
-# In[19]:
+# In[23]:
 
 
 final_df.info()
 
 
-# Dari final tabel yang akan digunakan, category name in english terdapat missing value, sehingga dilakukan data manipulation
+# Dari final tabel yang akan digunakan, category name in english terdapat missing value, sehingga dilakukan data manipulation (imputation)
 
-# In[20]:
+# In[24]:
 
 
 final_df.product_category_name_english.fillna('NA',inplace=True)
 
 
-# In[21]:
+# In[25]:
 
 
 final_df.info()
@@ -164,23 +207,25 @@ final_df.info()
 
 # Jumlah setiap data sudah sama, sehingga tidak ada missing value. Data telah siap dilakukan Analisis
 
-# # Bagaimana Demografi Pelanggan?
+# # Visualization & Explanatory Analysis
 
-# In[22]:
+# ## Bagaimana Demografi Pelanggan?
+
+# In[26]:
 
 
 jumlah_cust=final_df.groupby(['customer_state','customer_city'])['order_status'].count().reset_index()
 print(jumlah_cust)
 
 
-# In[23]:
+# In[27]:
 
 
 jumlah=jumlah_cust.sort_values(by='order_status', ascending=False)
 print(jumlah)
 
 
-# In[24]:
+# In[28]:
 
 
 # Mencari 3 customer_state terbanyak
@@ -201,7 +246,7 @@ for state in top_3_states:
     plt.show()
 
 
-# In[25]:
+# In[29]:
 
 
 st.write("""
@@ -210,7 +255,7 @@ Berikut ini merupakan dashboard data 3 customer state terbanyak dengan perincian
 """)
 
 
-# In[26]:
+# In[30]:
 
 
 import matplotlib.pyplot as plt
@@ -239,23 +284,23 @@ plt.show()
 st.pyplot(plt)
 
 
-# # Produk Manakah yang Paling Laris Terjual?
+# ## Produk Manakah yang Paling Laris Terjual?
 
-# In[27]:
+# In[31]:
 
 
 jumlah_produk=final_df.groupby('product_category_name_english')['order_status'].count().reset_index()
 print(jumlah_produk)
 
 
-# In[28]:
+# In[32]:
 
 
 jumlah_produk=jumlah_produk.sort_values(by='order_status', ascending=False)
 print(jumlah_produk)
 
 
-# In[29]:
+# In[33]:
 
 
 st.write("""
@@ -263,7 +308,7 @@ Berikut ini merupakan dashboard Penjualan produk paling laris dan paling rugi
 """)
 
 
-# In[30]:
+# In[34]:
 
 
 laku = jumlah_produk.head(5)
@@ -292,11 +337,15 @@ plt.show()
 st.pyplot(fig)
 
 
-# In[31]:
+# # Conclusion
 
+# 1. Jumlah customer state tertinggi ada di SP, RJ, MG. Pada tiap customer state terdapat 3 customer city terbanyak yaitu di SP terdapat Sao Paulo, Campinas, dan Guarulhos. Di RJ terdapat 3 customer city terbanyak yaitu di Rio De Jainero, Niteroi, dan Nova Iguacu. Di MG terdapat 3 customer city terbanyak yaitu Belo Horizonte, Contagem, dan Juiz de Fora.
+# 
+#     Untuk kesimpulan customer demography, Dapat meningkatkan penjualan/ memfokuskan penjualan di 3 customer state terbanyak. Penjualan dapat difokuskan di Cusomer city yang memiliki customer sedikit 
+# 
+# 
 
-st.write("""# Kesimpulan
-1. Dapat meningkatkan penjualan/ memfokuskan penjualan di 3 customer state terbanyak. Penjualan dapat difokuskan di Cusomer city yang memiliki customer sedikit 
-2. Untuk produk, dapat memfokuskan/memperbanyak produk dengan nilai penjualan terbanyak dan dapat mengurangi jumlah produk dengan penjualan sedikit
-""")
-
+# 
+# 2. Produk dengan penjualan terbanyak pada kategori bed_bath_table, health_beauty, sports_leisure, furniture_decor, computers_accessories. Sedangkan produk yang tidak laku adalah arts_and_craftmanship, cds_dvds_musicals, la_cuisine, fashion_childrens_clothes, security_and_services.
+# 
+#     Kesimpulan Untuk produk, dapat memfokuskan/memperbanyak produk dengan nilai penjualan terbanyak dan dapat mengurangi jumlah produk dengan penjualan sedikit
